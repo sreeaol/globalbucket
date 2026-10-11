@@ -2,24 +2,27 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BUCKET_NAME', defaultValue: 'default-bucket', description: 'Name of the GCS bucket')
+        string(name: 'BUCKET_NAMES', defaultValue: 'bucket1,bucket2', description: 'Comma-separated list of GCS buckets')
+        choice(name: 'STORAGE_CLASS', choices: ['STANDARD','NEARLINE','COLDLINE','ARCHIVE'], description: 'GCS storage class')
     }
 
     environment {
-        PROJECT_ID    = "project-135912bf-7758-481f-965"
-        REGION        = "us-central1"
-        STORAGE_CLASS = "STANDARD"
+        PROJECT_ID = "project-135912bf-7758-481f-965"
+        REGION     = "us-central1"
+        GOOGLE_CLOUD_KEYFILE_JSON = credentials('gcp-sa-json')
     }
 
     stages {
         stage('Prepare tfvars') {
             steps {
-                sh """
-                echo "project_id    = \\"${PROJECT_ID}\\"" > terraform.tfvars
-                echo "region        = \\"${REGION}\\"" >> terraform.tfvars
-                echo "bucket_name   = \\"${BUCKET_NAME}\\"" >> terraform.tfvars
-                echo "storage_class = \\"${STORAGE_CLASS}\\"" >> terraform.tfvars
-                """
+                sh '''
+                cat > terraform.tfvars <<EOF
+                project_id    = "${PROJECT_ID}"
+                region        = "${REGION}"
+                bucket_names  = "${BUCKET_NAMES}"
+                storage_class = "${STORAGE_CLASS}"
+                EOF
+                '''
             }
         }
 
