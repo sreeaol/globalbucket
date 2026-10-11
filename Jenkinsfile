@@ -9,7 +9,7 @@ pipeline {
     environment {
         PROJECT_ID = "project-135912bf-7758-481f-965"
         REGION     = "us-central1"
-        GOOGLE_CLOUD_KEYFILE_JSON = credentials('gcp-sa-json')
+       
     }
 
     stages {
