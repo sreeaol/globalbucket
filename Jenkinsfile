@@ -11,7 +11,21 @@ pipeline {
         REGION     = "us-central1"
        
     }
+variable "bucket_names" {
+  type = list(string)
+}
 
+locals {
+  bucket_list = split(",", var.bucket_names)
+}
+
+resource "google_storage_bucket" "buckets" {
+  for_each      = toset(local.bucket_list)
+  name          = each.value
+  location      = var.region
+  project       = var.project_id
+  storage_class = var.storage_class
+}
     stages {
         stage('Prepare tfvars') {
             steps {
